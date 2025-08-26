@@ -1,406 +1,993 @@
-<!doctype html>
+<!DOCTYPE html>
+
 <html lang="ko">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>기도의 불씨 · v3</title>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
-<style>
-  :root{
-    /* 컬러 시스템: 더 차분하고 현대적인 팔레트 */
-    --bg0:#0d1020;           /* 배경 */
-    --bg1:#12172b;           /* 카드/표면 */
-    --line:#1e2742;          /* 경계선 */
-    --text:#eef1ff;          /* 본문 */
-    --sub:#a7b0cc;           /* 보조 */
-    --accent:#7aa7ff;        /* 포커스/프라이머리 */
-    --accent-2:#b58cff;      /* 보조 포커스 */
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>기도의 불씨</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=Nanum+Pen+Script&display=swap');
 
-    /* 스테이지 색 (불꽃) — 단계 클래스가 override */
-    --outer:#ff7461; --mid:#ffb56a; --inner:#fff2cf;
-
-    --radius:18px;
-    --shadow-sm: 0 6px 18px rgba(0,0,0,.28);
-    --shadow-lg: 0 24px 60px rgba(0,0,0,.36);
-  }
-
-  .stage-1{ --outer:#ff6a6a; --mid:#ffa06a; --inner:#ffe7c9; }
-  .stage-2{ --outer:#ff904d; --mid:#ffc765; --inner:#fff2cc; }
-  .stage-3{ --outer:#ffd34d; --mid:#ffe680; --inner:#fff9da; }
-  .stage-4{ --outer:#fff6a8; --mid:#fff1cf; --inner:#ffffff; }
-
-  html,body{ height:100%; margin:0; color:var(--text);
-    font-family:"Noto Sans KR","Pretendard",-apple-system,system-ui,Segoe UI,Roboto,sans-serif; }
-  body{
-    background:
-      radial-gradient(1200px 700px at 70% 10%, rgba(122,167,255,.10), transparent 60%),
-      radial-gradient(900px 600px at 15% 20%, rgba(181,140,255,.10), transparent 60%),
-      linear-gradient(180deg, #101533, var(--bg0) 55%);
-  }
-
-  .wrap{ min-height:100%; display:flex; align-items:center; justify-content:center; padding:28px 16px 64px; }
-  .card{
-    width:min(880px, 94vw);
-    background:color-mix(in oklab, var(--bg1) 92%, #fff 8%);
-    border:1px solid var(--line);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
-    padding:22px;
-  }
-
-  header{ text-align:center; margin-bottom:8px; }
-  h1{ margin:.2rem 0 .1rem; letter-spacing:.01em; font-size:1.9rem; font-weight:600; }
-  .subtitle{ color:var(--sub); font-size:.96rem; }
-
-  .view{ display:none; } .view.active{ display:block; }
-  .center{text-align:center;}
-
-  /* 입력/텍스트 */
-  textarea{
-    width:100%; min-height:108px; padding:14px 16px;
-    border-radius:12px; border:1px solid var(--line);
-    background: #121831; color:var(--text); line-height:1.7; font-size:1rem;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,.02);
-  }
-  .tags{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 6px; }
-  .tag{
-    padding:8px 12px; border-radius:999px; font-size:.95rem;
-    border:1px solid var(--line); background:#141a36; color:var(--text);
-    transition: background .2s, border-color .2s;
-  }
-  .tag:hover{ border-color:#2a355a; }
-  .tag.active{ background:#e7efff; color:#09122e; border-color:#c9d8ff; font-weight:600; }
-
-  /* 버튼: 미니멀 · 라운드 · 고대비 포커스 */
-  .btn{
-    appearance:none; border:1px solid var(--line); color:var(--text);
-    background:#141a36; border-radius:12px; padding:11px 14px; font-size:1rem; cursor:pointer;
-    box-shadow: var(--shadow-sm); transition: transform .05s ease, border-color .2s, background .2s, opacity .2s;
-  }
-  .btn:hover{ transform: translateY(-1px); border-color:#2b3a66; }
-  .btn:active{ transform: translateY(0); opacity:.85; }
-  .btn.primary{
-    border-color: color-mix(in oklab, var(--accent) 60%, var(--accent-2) 40%);
-    background: linear-gradient(180deg,
-      color-mix(in oklab, var(--accent) 55%, #fff 6%),
-      color-mix(in oklab, var(--accent-2) 35%, #000 6%));
-    color:#081229; font-weight:600;
-  }
-  .btn.ghost{
-    background:transparent;
-    border-color:#2b365c;
-  }
-  .btn-row{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:14px; }
-
-  /* 불꽃 패널: 깔끔한 컨테이너 */
-  .flame-panel{ display:flex; gap:22px; align-items:center; justify-content:center; flex-wrap:wrap; }
-  .flame-wrap{
-    width:min(360px, 86vw); aspect-ratio:3/4; position:relative; border-radius:16px;
-    background:
-      radial-gradient(140px 120px at 50% 70%, rgba(255,210,150,.14), transparent 62%),
-      radial-gradient(260px 200px at 50% 100%, rgba(255,150,110,.10), transparent 64%);
-    border:1px solid var(--line);
-    display:flex; align-items:center; justify-content:center;
-  }
-
-  /* 새 물방울형 불꽃 */
-  .flame{ width:72%; height:auto; transform-origin:50% 100%; }
-  .flicker{ animation:flicker 1.9s ease-in-out infinite; }
-  @keyframes flicker{
-    0%{ transform:translateY(0) scale(.99); }
-    45%{ transform:translateY(-2px) scale(1.015); }
-    100%{ transform:translateY(0) scale(1.0); }
-  }
-
-  /* 스파클은 4단계에서만 */
-  .sparkles{ position:absolute; inset:0; pointer-events:none; opacity:.85; filter:blur(.2px); }
-  .hide{display:none!important;}
-
-  /* 기록 카드 */
-  .entry{ padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:#131937; margin-top:10px; }
-  .entry .date{ color:var(--sub); font-size:.92rem; }
-  .pill{ display:inline-block; padding:4px 8px; border-radius:999px; margin-left:6px; background:#0f142d; border:1px solid #2a355a; color:#cfe0ff; font-size:.82rem; }
-
-  footer{ text-align:center; color:var(--sub); font-size:.85rem; margin-top:16px; }
-  .note{ text-align:center; color:var(--sub); margin-top:8px; font-size:.95rem; }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: 'Noto Serif KR', serif;
+        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+        position: relative;
+    }
+    
+    /* 별똥별 애니메이션 배경 */
+    .stars {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+    
+    .star {
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        background: white;
+        border-radius: 50%;
+        opacity: 0.8;
+        animation: twinkle 3s infinite;
+    }
+    
+    @keyframes twinkle {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 1; }
+    }
+    
+    .container {
+        max-width: 500px;
+        margin: 0 auto;
+        min-height: 100vh;
+        position: relative;
+        z-index: 10;
+        padding: 20px;
+    }
+    
+    /* 홈 화면 */
+    .home-screen {
+        text-align: center;
+        padding: 80px 20px;
+        color: white;
+    }
+    
+    .app-title {
+        font-size: 2.5em;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #ff6b6b, #ffa726, #ffeb3b);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: glow 2s ease-in-out infinite alternate;
+        font-family: 'Nanum Pen Script', cursive;
+    }
+    
+    @keyframes glow {
+        from { text-shadow: 0 0 20px rgba(255, 107, 107, 0.5); }
+        to { text-shadow: 0 0 30px rgba(255, 167, 38, 0.8); }
+    }
+    
+    .subtitle {
+        font-size: 1.2em;
+        margin-bottom: 50px;
+        opacity: 0.9;
+        line-height: 1.6;
+    }
+    
+    .start-btn {
+        background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+        border: none;
+        padding: 18px 40px;
+        font-size: 1.3em;
+        color: white;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .start-btn:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(255, 107, 107, 0.4);
+    }
+    
+    /* 입력 화면 */
+    .input-screen {
+        display: none;
+        padding: 40px 20px;
+        color: white;
+        text-align: center;
+    }
+    
+    .input-header {
+        margin-bottom: 40px;
+    }
+    
+    .input-header h2 {
+        font-size: 1.8em;
+        margin-bottom: 15px;
+        color: #ffa726;
+        font-family: 'Nanum Pen Script', cursive;
+    }
+    
+    .prayer-input {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        padding: 20px;
+        width: 100%;
+        font-size: 1.1em;
+        color: white;
+        margin-bottom: 30px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+    
+    .prayer-input:focus {
+        outline: none;
+        border-color: #ff6b6b;
+        box-shadow: 0 0 20px rgba(255, 107, 107, 0.3);
+    }
+    
+    .prayer-input::placeholder {
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .emotion-tags {
+        margin-bottom: 40px;
+    }
+    
+    .emotion-tags h3 {
+        margin-bottom: 20px;
+        font-size: 1.2em;
+        color: #ffeb3b;
+    }
+    
+    .tag-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+    }
+    
+    .emotion-tag {
+        background: rgba(255, 255, 255, 0.1);
+        border: 2px solid transparent;
+        padding: 10px 20px;
+        border-radius: 25px;
+        color: white;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .emotion-tag:hover {
+        background: rgba(255, 255, 255, 0.2);
+        transform: scale(1.05);
+    }
+    
+    .emotion-tag.selected {
+        border-color: #ff6b6b;
+        background: rgba(255, 107, 107, 0.2);
+        box-shadow: 0 0 15px rgba(255, 107, 107, 0.3);
+    }
+    
+    .submit-btn {
+        background: linear-gradient(45deg, #4caf50, #66bb6a);
+        border: none;
+        padding: 15px 35px;
+        font-size: 1.2em;
+        color: white;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 8px 25px rgba(76, 175, 80, 0.3);
+        transition: all 0.3s ease;
+        font-weight: 600;
+    }
+    
+    .submit-btn:hover:not(:disabled) {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 30px rgba(76, 175, 80, 0.4);
+    }
+    
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* 불꽃 화면 */
+    .flame-screen {
+        display: none;
+        padding: 40px 20px;
+        color: white;
+        text-align: center;
+        position: relative;
+    }
+    
+    .flame-container {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 40px auto;
+    }
+    
+    /* 불꽃 SVG 애니메이션 */
+    .flame-svg {
+        width: 100%;
+        height: 100%;
+        animation: flameGrow 2s ease-out forwards;
+    }
+    
+    @keyframes flameGrow {
+        0% {
+            transform: scale(0);
+            opacity: 0;
+        }
+        50% {
+            transform: scale(1.2);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+    
+    .flame-message {
+        font-size: 1.4em;
+        margin: 30px 0;
+        color: #ffa726;
+        font-family: 'Nanum Pen Script', cursive;
+        animation: fadeInUp 1s ease-out 1s both;
+    }
+    
+    @keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .prayer-display {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+        backdrop-filter: blur(10px);
+        animation: fadeIn 1s ease-out 1.5s both;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    
+    .flame-actions {
+        margin-top: 40px;
+        animation: fadeIn 1s ease-out 2s both;
+    }
+    
+    .btn {
+        background: linear-gradient(45deg, #9c27b0, #e91e63);
+        border: none;
+        padding: 12px 25px;
+        margin: 0 10px;
+        font-size: 1em;
+        color: white;
+        border-radius: 25px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+    
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(156, 39, 176, 0.3);
+    }
+    
+    .btn.secondary {
+        background: linear-gradient(45deg, #607d8b, #78909c);
+    }
+    
+    /* 기록 화면 */
+    .records-screen {
+        display: none;
+        padding: 40px 20px;
+        color: white;
+    }
+    
+    .records-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+    
+    .records-header h2 {
+        font-size: 2em;
+        color: #ffa726;
+        font-family: 'Nanum Pen Script', cursive;
+        margin-bottom: 10px;
+    }
+    
+    .stats {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-item {
+        text-align: center;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 15px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stat-number {
+        font-size: 2em;
+        font-weight: bold;
+        color: #ffeb3b;
+    }
+    
+    .prayer-list {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 30px;
+    }
+    
+    .prayer-item {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        backdrop-filter: blur(10px);
+        border-left: 4px solid;
+        position: relative;
+    }
+    
+    .prayer-item.level-1 { border-left-color: #ff6b6b; }
+    .prayer-item.level-2 { border-left-color: #ffa726; }
+    .prayer-item.level-3 { border-left-color: #ffeb3b; }
+    .prayer-item.level-4 { border-left-color: #4caf50; }
+    
+    .prayer-date {
+        font-size: 0.9em;
+        opacity: 0.7;
+        margin-bottom: 8px;
+    }
+    
+    .prayer-text {
+        font-size: 1.1em;
+        line-height: 1.4;
+        margin-bottom: 10px;
+    }
+    
+    .prayer-tag {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.8em;
+        margin-right: 5px;
+    }
+    
+    .level-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        font-size: 1.5em;
+    }
+    
+    /* 모바일 최적화 */
+    @media (max-width: 768px) {
+        .container {
+            padding: 10px;
+        }
+        
+        .app-title {
+            font-size: 2em;
+        }
+        
+        .tag-container {
+            flex-direction: column;
+        }
+        
+        .emotion-tag {
+            width: 100%;
+        }
+        
+        .stats {
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .flame-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+    
+    /* 파티클 효과 */
+    .particle {
+        position: absolute;
+        width: 4px;
+        height: 4px;
+        background: #ffeb3b;
+        border-radius: 50%;
+        pointer-events: none;
+        animation: floatUp 3s ease-out forwards;
+    }
+    
+    @keyframes floatUp {
+        0% {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        100% {
+            opacity: 0;
+            transform: translateY(-100px) scale(0);
+        }
+    }
 </style>
+
 </head>
 <body>
-<div class="wrap">
-  <main class="card">
-    <header>
-      <div class="subtitle">웹 교구</div>
-      <h1>기도의 불씨</h1>
-      <div class="subtitle">물방울처럼 맑고 단정한 불꽃으로</div>
-    </header>
+    <!-- 별똥별 배경 -->
+    <div class="stars" id="stars"></div>
 
-    <!-- HOME -->
-    <section id="view-home" class="view active center">
-      <p style="font-family:'Nanum Pen Script',cursive; font-size:1.3rem;">“나의 기도 불씨를 키워보세요”</p>
-      <div class="btn-row">
-        <button id="btnStart" class="btn primary">시작하기</button>
-        <button id="btnGoHistory" class="btn ghost">나의 기록 보기</button>
-      </div>
-    </section>
-
-    <!-- INPUT -->
-    <section id="view-input" class="view">
-      <div style="font-family:'Nanum Pen Script',cursive; margin-bottom:6px;">하나님, 저는 …을(를) 위해 기도하고 싶어요.</div>
-      <label for="txtPrayer" class="hide">기도 제목</label>
-      <textarea id="txtPrayer" maxlength="300" placeholder="예: 아픈 친구의 회복을 위해, 가족의 평안을 위해, 시험을 준비하며…"></textarea>
-      <div style="font-family:'Nanum Pen Script',cursive; margin-top:10px;">감정 태그를 선택해 주세요</div>
-      <div id="tagList" class="tags" role="listbox" aria-label="감정 태그"></div>
-      <div class="btn-row">
-        <button id="btnSubmit" class="btn primary">불꽃 만들기</button>
-        <button class="btn" data-goto="view-home">돌아가기</button>
-      </div>
-      <div class="note">※ 모든 내용은 이 기기 로컬에만 저장됩니다.</div>
-    </section>
-
-    <!-- FLAME -->
-    <section id="view-flame" class="view center">
-      <div class="flame-panel">
-        <div id="flameContainer" class="flame-wrap stage-1" aria-live="polite">
-          <!-- 물방울형 불꽃: 매끄러운 윤곽 + 코어 -->
-          <svg id="flameSVG" class="flame flicker" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-            <defs>
-              <filter id="soft" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="1.2" />
-              </filter>
-              <!-- 외곽/코어 그라디언트 -->
-              <radialGradient id="outerG" cx="50%" cy="35%" r="70%">
-                <stop offset="0%"  stop-color="var(--mid)"/>
-                <stop offset="100%" stop-color="var(--outer)"/>
-              </radialGradient>
-              <radialGradient id="coreG" cx="50%" cy="45%" r="55%">
-                <stop offset="0%"  stop-color="var(--inner)"/>
-                <stop offset="100%" stop-color="var(--mid)"/>
-              </radialGradient>
-            </defs>
-
-            <!-- 물방울 외곽: 꼬리 좁고 머리 둥글게 -->
-            <path id="outer"
-              d="M100 16
-                 C 134 56, 168 104, 156 150
-                 C 142 202, 110 236, 100 244
-                 C  90 236,  58 202,  44 150
-                 C  32 104,  66 56, 100 16 Z"
-              fill="url(#outerG)" opacity=".95">
-              <animate attributeName="d" dur="3.8s" repeatCount="indefinite" values="
-                M100 16 C134 56,168 104,156 150 C142 202,110 236,100 244 C90 236,58 202,44 150 C32 104,66 56,100 16 Z;
-                M100 15 C138 58,170 108,155 153 C140 203,110 236,100 244 C90 236,60 203,45 153 C30 108,62 58,100 15 Z;
-                M100 16 C134 56,168 104,156 150 C142 202,110 236,100 244 C90 236,58 202,44 150 C32 104,66 56,100 16 Z"/>
-            </path>
-
-            <!-- 중간층 -->
-            <path id="mid"
-              d="M100 40
-                 C 128 78, 154 118, 144 152
-                 C 132 188, 110 214, 100 222
-                 C  90 214,  68 188,  56 152
-                 C  46 118,  72 78, 100 40 Z"
-              fill="url(#coreG)" opacity=".98">
-              <animate attributeName="d" dur="3.2s" repeatCount="indefinite" values="
-                M100 40 C128 78,154 118,144 152 C132 188,110 214,100 222 C90 214,68 188,56 152 C46 118,72 78,100 40 Z;
-                M100 39 C130 79,154 120,142 152 C130 186,110 214,100 222 C90 214,70 186,58 152 C46 120,70 79,100 39 Z;
-                M100 40 C128 78,154 118,144 152 C132 188,110 214,100 222 C90 214,68 188,56 152 C46 118,72 78,100 40 Z"/>
-            </path>
-
-            <!-- 코어(가장 둥글고 작게) -->
-            <path id="core"
-              d="M100 76
-                 C 116 100, 126 124, 121 142
-                 C 114 164, 104 180, 100 186
-                 C  96 180,  86 164,  79 142
-                 C  74 124,  84 100, 100 76 Z"
-              fill="var(--inner)" filter="url(#soft)" opacity=".98">
-              <animate attributeName="d" dur="2.6s" repeatCount="indefinite" values="
-                M100 76 C116 100,126 124,121 142 C114 164,104 180,100 186 C96 180,86 164,79 142 C74 124,84 100,100 76 Z;
-                M100 74 C118 100,126 126,120 142 C114 160,104 178,100 184 C96 178,88 160,80 142 C74 126,82 100,100 74 Z;
-                M100 76 C116 100,126 124,121 142 C114 164,104 180,100 186 C96 180,86 164,79 142 C74 124,84 100,100 76 Z"/>
-            </path>
-          </svg>
-
-          <!-- 스테이지 4에서만 반짝 -->
-          <svg id="sparkles" class="sparkles hide" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
-            <g fill="#fff" opacity=".95">
-              <path d="M30 60 l6 12 12 6 -12 6 -6 12 -6 -12 -12 -6 12 -6z"/>
-              <path d="M170 90 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
-            </g>
-          </svg>
+<div class="container">
+    <!-- 홈 화면 -->
+    <div class="home-screen" id="homeScreen">
+        <h1 class="app-title">🕊️ 기도의 불씨</h1>
+        <p class="subtitle">
+            작은 기도가 모여 큰 불꽃이 됩니다<br>
+            나의 기도 불씨를 키워보세요 ✨
+        </p>
+        <button class="start-btn" onclick="showInputScreen()">🔥 시작하기</button>
+        <br><br>
+        <button class="btn secondary" onclick="showRecordsScreen()" style="margin-top: 20px;">📖 나의 기록 보기</button>
+    </div>
+    
+    <!-- 입력 화면 -->
+    <div class="input-screen" id="inputScreen">
+        <div class="input-header">
+            <h2>🙏 어떤 기도를 올려드릴까요?</h2>
+            <p>마음을 담아 기도 제목을 적어보세요</p>
         </div>
-
-        <div style="min-width:260px;max-width:360px">
-          <h2 style="margin:0 0 6px;">당신의 기도가 불꽃이 되었어요</h2>
-          <div id="statusLine" class="subtitle">참여 0회 • 단계: 붉은 불씨 🔴</div>
-          <div class="entry" id="lastEntryBox">
-            <div class="date" id="lastDate">--</div>
-            <div class="hand" id="lastText" style="font-family:'Nanum Pen Script',cursive; font-size:1.1rem;">—</div>
-            <div><span class="pill" id="lastTag">—</span></div>
-          </div>
-          <div class="btn-row">
-            <button id="btnSaveImage" class="btn primary">이미지 저장</button>
-            <button id="btnCopyText"  class="btn">텍스트 복사</button>
-            <button id="btnMore"      class="btn">다시 입력</button>
-            <button id="btnToHistory" class="btn ghost">기록 보기</button>
-          </div>
+        
+        <textarea 
+            class="prayer-input" 
+            id="prayerInput" 
+            placeholder="하나님, 저는 _____을 위해 기도하고 싶어요..."
+            rows="4"
+            maxlength="200"
+        ></textarea>
+        
+        <div class="emotion-tags">
+            <h3>🏷️ 기도의 마음을 선택해주세요</h3>
+            <div class="tag-container">
+                <div class="emotion-tag" data-tag="감사">😊 감사</div>
+                <div class="emotion-tag" data-tag="간구">🙏 간구</div>
+                <div class="emotion-tag" data-tag="회복">💚 회복</div>
+                <div class="emotion-tag" data-tag="평안">☮️ 평안</div>
+                <div class="emotion-tag" data-tag="지혜">🧠 지혜</div>
+                <div class="emotion-tag" data-tag="사랑">❤️ 사랑</div>
+            </div>
         </div>
-      </div>
-    </section>
-
-    <!-- HISTORY -->
-    <section id="view-history" class="view">
-      <div class="center">
-        <h2 style="margin:0 0 6px;">나의 불꽃 기록</h2>
-        <div id="historyStatus" class="subtitle">—</div>
-        <div class="btn-row">
-          <button data-goto="view-input" class="btn primary">새 기도 남기기</button>
-          <button id="btnExportText" class="btn">전체 텍스트 복사</button>
-          <button data-goto="view-home" class="btn ghost">홈으로</button>
+        
+        <button class="submit-btn" id="submitBtn" onclick="submitPrayer()" disabled>
+            🔥 불씨 키우기
+        </button>
+        
+        <br><br>
+        <button class="btn secondary" onclick="goHome()">🏠 홈으로</button>
+    </div>
+    
+    <!-- 불꽃 화면 -->
+    <div class="flame-screen" id="flameScreen">
+        <div class="flame-container">
+            <svg class="flame-svg" viewBox="0 0 200 200" id="flameSvg">
+                <!-- 불꽃이 여기에 그려집니다 -->
+            </svg>
         </div>
-      </div>
-      <div id="historyList" class="history"></div>
-      <footer>로컬에 저장됨 · 이 브라우저에서만 보입니다</footer>
-    </section>
-  </main>
+        
+        <div class="flame-message" id="flameMessage">
+            당신의 기도가 불꽃이 되었습니다 🔥
+        </div>
+        
+        <div class="prayer-display" id="prayerDisplay">
+            <!-- 기도 내용이 여기에 표시됩니다 -->
+        </div>
+        
+        <div class="flame-actions">
+            <button class="btn" onclick="savePrayerImage()">📱 이미지 저장</button>
+            <button class="btn" onclick="showRecordsScreen()">📖 기록 보기</button>
+            <button class="btn secondary" onclick="goHome()">🏠 홈으로</button>
+        </div>
+    </div>
+    
+    <!-- 기록 화면 -->
+    <div class="records-screen" id="recordsScreen">
+        <div class="records-header">
+            <h2>📖 나의 기도 불꽃들</h2>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-number" id="totalPrayers">0</div>
+                    <div>총 기도</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" id="flameLevel">🔴</div>
+                    <div>불꽃 단계</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="prayer-list" id="prayerList">
+            <!-- 기도 목록이 여기에 표시됩니다 -->
+        </div>
+        
+        <div style="text-align: center;">
+            <button class="btn" onclick="exportPrayers()">📋 전체 복사</button>
+            <button class="btn secondary" onclick="goHome()">🏠 홈으로</button>
+        </div>
+    </div>
 </div>
 
 <script>
-/* ===== 데이터 ===== */
-const STORAGE_KEY='prayerSparks';
-const TAGS=['감사','간구','회복','지혜','화해','용서','평안','인도','소망','찬양'];
+        // 전역 변수들
+        let currentPrayer = '';
+        let currentTag = '';
+        let prayers = [];
+        
+        // 페이지 로드 시 초기화
+        window.addEventListener('load', function() {
+            createStars();
+            loadPrayers();
+            setupEventListeners();
+        });
+        
+        // 별 배경 생성
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // 이벤트 리스너 설정
+        function setupEventListeners() {
+            const prayerInput = document.getElementById('prayerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            const emotionTags = document.querySelectorAll('.emotion-tag');
+            
+            // 입력 필드 변화 감지
+            prayerInput.addEventListener('input', function() {
+                updateSubmitButton();
+            });
+            
+            // 감정 태그 선택
+            emotionTags.forEach(tag => {
+                tag.addEventListener('click', function() {
+                    emotionTags.forEach(t => t.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentTag = this.dataset.tag;
+                    updateSubmitButton();
+                });
+            });
+        }
+        
+        // 제출 버튼 상태 업데이트
+        function updateSubmitButton() {
+            const prayerInput = document.getElementById('prayerInput');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (prayerInput.value.trim() && currentTag) {
+                submitBtn.disabled = false;
+            } else {
+                submitBtn.disabled = true;
+            }
+        }
+        
+        // 화면 전환 함수들
+        function showInputScreen() {
+            hideAllScreens();
+            document.getElementById('inputScreen').style.display = 'block';
+            document.getElementById('prayerInput').focus();
+        }
+        
+        function showFlameScreen() {
+            hideAllScreens();
+            document.getElementById('flameScreen').style.display = 'block';
+            createFlameAnimation();
+            createParticles();
+        }
+        
+        function showRecordsScreen() {
+            hideAllScreens();
+            document.getElementById('recordsScreen').style.display = 'block';
+            renderPrayerList();
+        }
+        
+        function goHome() {
+            hideAllScreens();
+            document.getElementById('homeScreen').style.display = 'block';
+            resetForm();
+        }
+        
+        function hideAllScreens() {
+            document.getElementById('homeScreen').style.display = 'none';
+            document.getElementById('inputScreen').style.display = 'none';
+            document.getElementById('flameScreen').style.display = 'none';
+            document.getElementById('recordsScreen').style.display = 'none';
+        }
+        
+        // 폼 초기화
+        function resetForm() {
+            document.getElementById('prayerInput').value = '';
+            document.querySelectorAll('.emotion-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            currentTag = '';
+            document.getElementById('submitBtn').disabled = true;
+        }
+        
+        // 기도 제출
+        function submitPrayer() {
+            currentPrayer = document.getElementById('prayerInput').value.trim();
+            
+            if (!currentPrayer || !currentTag) {
+                alert('기도 제목과 감정을 모두 선택해주세요.');
+                return;
+            }
+            
+            // 기도 저장
+            const prayer = {
+                text: currentPrayer,
+                tag: currentTag,
+                date: new Date().toISOString(),
+                id: Date.now()
+            };
+            
+            prayers.push(prayer);
+            savePrayers();
+            
+            // 불꽃 화면으로 이동
+            showFlameScreen();
+        }
+        
+        // 불꽃 애니메이션 생성
+        function createFlameAnimation() {
+            const level = getFlameLevel();
+            const flameSvg = document.getElementById('flameSvg');
+            const flameMessage = document.getElementById('flameMessage');
+            const prayerDisplay = document.getElementById('prayerDisplay');
+            
+            // 불꽃 SVG 생성
+            let flameColor, flameSize, flameEmoji;
+            
+            if (level <= 1) {
+                flameColor = '#ff6b6b';
+                flameSize = 80;
+                flameEmoji = '🔴';
+            } else if (level <= 3) {
+                flameColor = '#ffa726';
+                flameSize = 100;
+                flameEmoji = '🟠';
+            } else if (level <= 5) {
+                flameColor = '#ffeb3b';
+                flameSize = 120;
+                flameEmoji = '🟡';
+            } else {
+                flameColor = '#4caf50';
+                flameSize = 140;
+                flameEmoji = '✨';
+            }
+            
+            flameSvg.innerHTML = `
+                <defs>
+                    <radialGradient id="flameGradient" cx="50%" cy="100%" r="80%">
+                        <stop offset="0%" style="stop-color:${flameColor};stop-opacity:1" />
+                        <stop offset="70%" style="stop-color:#ff6b6b;stop-opacity:0.8" />
+                        <stop offset="100%" style="stop-color:#ff8e53;stop-opacity:0.6" />
+                    </radialGradient>
+                </defs>
+                <path d="M100 150 
+                        C80 140, 70 120, 80 100
+                        C85 80, 95 70, 100 60
+                        C105 70, 115 80, 120 100
+                        C130 120, 120 140, 100 150 Z" 
+                      fill="url(#flameGradient)"
+                      transform="scale(${flameSize/100})">
+                    <animateTransform
+                        attributeName="transform"
+                        attributeType="XML"
+                        type="scale"
+                        values="${flameSize/100 * 0.8};${flameSize/100 * 1.1};${flameSize/100}"
+                        dur="2s"
+                        repeatCount="indefinite"/>
+                </path>
+            `;
+            
+            // 메시지 업데이트
+            flameMessage.innerHTML = `${flameEmoji} 당신의 기도가 ${getFlameDescription(level)} 되었습니다!`;
+            
+            // 기도 내용 표시
+            prayerDisplay.innerHTML = `
+                <div style="font-size: 1.1em; margin-bottom: 10px;">"${currentPrayer}"</div>
+                <div style="font-size: 0.9em; opacity: 0.8;">${currentTag} • ${new Date().toLocaleDateString()}</div>
+            `;
+        }
+        
+        // 불꽃 레벨 계산
+        function getFlameLevel() {
+            const count = prayers.length;
+            if (count >= 10) return 4;
+            if (count >= 5) return 3;
+            if (count >= 3) return 2;
+            return 1;
+        }
+        
+        // 불꽃 설명
+        function getFlameDescription(level) {
+            const descriptions = {
+                1: '작은 불씨로',
+                2: '따뜻한 불꽃으로',
+                3: '빛나는 불꽃으로',
+                4: '활활 타오르는 큰 불꽃으로'
+            };
+            return descriptions[level];
+        }
+        
+        // 파티클 효과
+        function createParticles() {
+            const container = document.querySelector('.flame-container');
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.style.left = Math.random() * 200 + 'px';
+                    particle.style.top = '150px';
+                    container.appendChild(particle);
+                    
+                    setTimeout(() => {
+                        particle.remove();
+                    }, 3000);
+                }, i * 200);
+            }
+        }
+        
+        // 기도 목록 렌더링
+        function renderPrayerList() {
+            const prayerList = document.getElementById('prayerList');
+            const totalPrayers = document.getElementById('totalPrayers');
+            const flameLevel = document.getElementById('flameLevel');
+            
+            // 통계 업데이트
+            totalPrayers.textContent = prayers.length;
+            const level = getFlameLevel();
+            const levelEmojis = ['🔴', '🟠', '🟡', '✨'];
+            flameLevel.textContent = levelEmojis[level - 1];
+            
+            // 기도 목록 생성 (최신순)
+            const sortedPrayers = [...prayers].reverse();
+            prayerList.innerHTML = sortedPrayers.map((prayer, index) => {
+                const date = new Date(prayer.date).toLocaleDateString('ko-KR');
+                const originalIndex = prayers.length - 1 - index;
+                const levelClass = `level-${Math.min(Math.ceil((originalIndex + 1) / 3), 4)}`;
+                const levelEmoji = ['🔴', '🟠', '🟡', '✨'][Math.min(Math.floor(originalIndex / 3), 3)];
+                
+                return `
+                    <div class="prayer-item ${levelClass}">
+                        <div class="level-badge">${levelEmoji}</div>
+                        <div class="prayer-date">${date}</div>
+                        <div class="prayer-text">${prayer.text}</div>
+                        <span class="prayer-tag">${prayer.tag}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 기도 데이터 저장/로드
+        function savePrayers() {
+            localStorage.setItem('prayerFlames', JSON.stringify(prayers));
+        }
+        
+        function loadPrayers() {
+            const saved = localStorage.getItem('prayerFlames');
+            if (saved) {
+                prayers = JSON.parse(saved);
+            }
+        }
+        
+        // 이미지 저장
+        function savePrayerImage() {
+            const resultText = `🕊️ 기도의 불씨\n\n"${currentPrayer}"\n\n${currentTag} • ${new Date().toLocaleDateString()}\n\n총 ${prayers.length}개의 기도 불꽃 🔥`;
+            
+            if (navigator.share) {
+                // 모바일 네이티브 공유
+                navigator.share({
+                    title: '기도의 불씨',
+                    text: resultText
+                });
+            } else {
+                // 클립보드 복사
+                navigator.clipboard.writeText(resultText).then(() => {
+                    alert('기도 내용이 복사되었습니다! 📋');
+                }).catch(() => {
+                    // 클립보드 API를 지원하지 않는 경우
+                    const textArea = document.createElement('textarea');
+                    textArea.value = resultText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('기도 내용이 복사되었습니다! 📋');
+                });
+            }
+        }
+        
+        // 전체 기도 내용 내보내기
+        function exportPrayers() {
+            if (prayers.length === 0) {
+                alert('저장된 기도가 없습니다.');
+                return;
+            }
+            
+            const level = getFlameLevel();
+            const levelEmojis = ['🔴', '🟠', '🟡', '✨'];
+            const currentEmoji = levelEmojis[level - 1];
+            
+            let exportText = `🕊️ 나의 기도 불꽃들 ${currentEmoji}\n\n`;
+            exportText += `총 ${prayers.length}개의 기도\n`;
+            exportText += `현재 불꽃 단계: ${getFlameDescription(level)}\n\n`;
+            exportText += '─'.repeat(30) + '\n\n';
+            
+            const sortedPrayers = [...prayers].reverse();
+            sortedPrayers.forEach((prayer, index) => {
+                const date = new Date(prayer.date).toLocaleDateString('ko-KR');
+                exportText += `${index + 1}. "${prayer.text}"\n`;
+                exportText += `   ${prayer.tag} • ${date}\n\n`;
+            });
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: '나의 기도 불꽃들',
+                    text: exportText
+                });
+            } else {
+                navigator.clipboard.writeText(exportText).then(() => {
+                    alert('모든 기도 내용이 복사되었습니다! 📋');
+                }).catch(() => {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = exportText;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    alert('모든 기도 내용이 복사되었습니다! 📋');
+                });
+            }
+        }
+        
+        // 키보드 이벤트
+        document.addEventListener('keydown', function(e) {
+            // Enter 키로 기도 제출
+            if (e.key === 'Enter' && e.ctrlKey && !document.getElementById('submitBtn').disabled) {
+                submitPrayer();
+            }
+            
+            // ESC 키로 홈으로
+            if (e.key === 'Escape') {
+                goHome();
+            }
+        });
+        
+        // 터치 이벤트 (모바일 지원)
+        let touchStartY = 0;
+        document.addEventListener('touchstart', function(e) {
+            touchStartY = e.touches[0].clientY;
+        });
+        
+        document.addEventListener('touchend', function(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const diff = touchStartY - touchEndY;
+            
+            // 위로 스와이프하면 기록 화면으로
+            if (diff > 100 && document.getElementById('homeScreen').style.display !== 'none') {
+                showRecordsScreen();
+            }
+        });
+        
+        // 불꽃 클릭 시 파티클 효과 추가
+        document.addEventListener('click', function(e) {
+            if (e.target.closest('.flame-container')) {
+                createParticles();
+                
+                // 작은 진동 효과 (모바일)
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
+            }
+        });
+        
+        // 로컬 저장소 백업 기능
+        function backupPrayers() {
+            const backup = {
+                prayers: prayers,
+                timestamp: new Date().toISOString(),
+                version: '1.0'
+            };
+            return JSON.stringify(backup, null, 2);
+        }
+        
+        function restorePrayers(backupData) {
+            try {
+                const backup = JSON.parse(backupData);
+                if (backup.prayers && Array.isArray(backup.prayers)) {
+                    prayers = backup.prayers;
+                    savePrayers();
+                    alert('기도 내용이 성공적으로 복원되었습니다! 🎉');
+                    renderPrayerList();
+                } else {
+                    throw new Error('Invalid backup format');
+                }
+            } catch (error) {
+                alert('백업 파일 형식이 올바르지 않습니다.');
+            }
+        }
+        
+        // 개발자 도구에서 사용할 수 있는 유틸리티 함수들
+        window.prayerUtils = {
+            backup: backupPrayers,
+            restore: restorePrayers,
+            clear: function() {
+                if (confirm('모든 기도 기록을 삭제하시겠습니까?')) {
+                    prayers = [];
+                    savePrayers();
+                    alert('모든 기록이 삭제되었습니다.');
+                    renderPrayerList();
+                }
+            },
+            stats: function() {
+                console.log('기도 통계:', {
+                    총기도수: prayers.length,
+                    불꽃레벨: getFlameLevel(),
+                    태그별통계: prayers.reduce((acc, prayer) => {
+                        acc[prayer.tag] = (acc[prayer.tag] || 0) + 1;
+                        return acc;
+                    }, {})
+                });
+            }
+        };
+    </script>
 
-const flameContainer=document.getElementById('flameContainer');
-const sparkles=document.getElementById('sparkles');
-const statusLine=document.getElementById('statusLine');
-const lastDate=document.getElementById('lastDate');
-const lastText=document.getElementById('lastText');
-const lastTag=document.getElementById('lastTag');
-const txtPrayer=document.getElementById('txtPrayer');
-const tagList=document.getElementById('tagList');
-const historyStatus=document.getElementById('historyStatus');
-const historyList=document.getElementById('historyList');
-
-function loadData(){
-  try{ const raw=localStorage.getItem(STORAGE_KEY);
-    if(!raw){ const base={version:1,entries:[]}; localStorage.setItem(STORAGE_KEY, JSON.stringify(base)); return base; }
-    const obj=JSON.parse(raw); if(!obj.version) obj.version=1; if(!Array.isArray(obj.entries)) obj.entries=[]; return obj;
-  }catch{ return {version:1,entries:[]}; }
-}
-function saveData(d){ localStorage.setItem(STORAGE_KEY, JSON.stringify(d)); }
-function addEntry(text, tag){
-  const d=loadData(); const e={id:String(Date.now()), text:text.trim(), tag:tag||'기타', dateISO:new Date().toISOString()};
-  d.entries.push(e); saveData(d); return e;
-}
-function count(){ return loadData().entries.length; }
-function stageInfo(n){
-  if(n>=10) return {id:4, name:'빛나는 불꽃 ✨', cls:'stage-4'};
-  if(n>=5)  return {id:3, name:'금빛 불꽃 🟡', cls:'stage-3'};
-  if(n>=3)  return {id:2, name:'주황 불꽃 🟠', cls:'stage-2'};
-  if(n>=1)  return {id:1, name:'붉은 불씨 🔴', cls:'stage-1'};
-  return {id:0, name:'—', cls:'stage-1'};
-}
-function fmt(iso){ const d=new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
-function goTo(id){ document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); document.getElementById(id).classList.add('active'); window.scrollTo({top:0,behavior:'smooth'}); }
-
-let selectedTag=null;
-function buildTags(){
-  tagList.innerHTML=''; TAGS.forEach(t=>{ const b=document.createElement('button'); b.type='button'; b.className='tag'; b.textContent=t;
-    b.addEventListener('click',()=>{ selectedTag=(selectedTag===t)?null:t; [...tagList.children].forEach(ch=>ch.classList.toggle('active', ch.textContent===selectedTag)); });
-    tagList.appendChild(b);
-  });
-}
-buildTags();
-
-/* submit */
-document.getElementById('btnStart').addEventListener('click',()=>goTo('view-input'));
-document.getElementById('btnGoHistory').addEventListener('click',()=>{ renderHistory(); goTo('view-history'); });
-document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>goTo(b.getAttribute('data-goto'))));
-document.getElementById('btnSubmit').addEventListener('click',()=>{
-  const text=txtPrayer.value.trim(); if(!text){ alert('기도 제목을 적어 주세요.'); txtPrayer.focus(); return; }
-  const e=addEntry(text, selectedTag||'기타'); txtPrayer.value=''; selectedTag=null; [...tagList.children].forEach(ch=>ch.classList.remove('active'));
-  renderFlame(e); goTo('view-flame');
-});
-
-/* flame render */
-function renderFlame(latest=null){
-  const n=count(); const st=stageInfo(n);
-  flameContainer.classList.remove('stage-1','stage-2','stage-3','stage-4'); flameContainer.classList.add(st.cls);
-  statusLine.textContent=`참여 ${n}회 • 단계: ${st.name}`;
-  const d=loadData(); const last=latest||d.entries[d.entries.length-1]; if(last){ lastDate.textContent=fmt(last.dateISO); lastText.textContent=last.text; lastTag.textContent=last.tag; }
-  sparkles.classList.toggle('hide', st.id!==4);
-}
-renderFlame();
-
-/* history */
-function renderHistory(){
-  const d=loadData(); const n=d.entries.length; const st=stageInfo(n);
-  historyStatus.textContent=`참여 ${n}회 • 현재 단계: ${st.name}`;
-  historyList.innerHTML='';
-  if(n===0){ historyList.innerHTML='<div class="note">아직 기록이 없어요. 오늘 첫 불씨를 남겨 보세요.</div>'; return; }
-  [...d.entries].reverse().forEach(e=>{
-    const div=document.createElement('div'); div.className='entry';
-    div.innerHTML=`<div class="date">${fmt(e.dateISO)} <span class="pill">${e.tag}</span></div>
-                   <div style="font-family:'Nanum Pen Script',cursive; margin-top:6px; font-size:1.05rem;">${escapeHTML(e.text)}</div>`;
-    historyList.appendChild(div);
-  });
-}
-
-/* copy/export */
-function summaryText(){
-  const d=loadData(); const n=d.entries.length; const st=stageInfo(n);
-  return ['【나의 기도 불꽃】',`참여 ${n}회 • 단계: ${st.name}`,'', ...d.entries.map((e,i)=>`${i+1}. ${fmt(e.dateISO)} [${e.tag}] ${e.text}`)].join('\n');
-}
-document.getElementById('btnCopyText').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(summaryText()); toast('텍스트를 복사했어요.'); }
-  catch{ prompt('복사할 텍스트입니다. 수동 복사하세요:', summaryText()); }
-});
-document.getElementById('btnExportText').addEventListener('click', async ()=>{
-  try{ await navigator.clipboard.writeText(summaryText()); toast('전체 기록을 복사했어요.'); }
-  catch{ prompt('복사할 텍스트입니다. 수동 복사하세요:', summaryText()); }
-});
-
-/* image export: SVG → PNG */
-document.getElementById('btnSaveImage').addEventListener('click', async ()=>{
-  const d=loadData(); const last=d.entries[d.entries.length-1]; const n=count(); const st=stageInfo(n);
-  const W=1000,H=1400; const c=document.createElement('canvas'); c.width=W; c.height=H; const ctx=c.getContext('2d');
-
-  // 배경
-  const grd=ctx.createLinearGradient(0,0,0,H); grd.addColorStop(0,'#11163a'); grd.addColorStop(1,'#0c1024'); ctx.fillStyle=grd; ctx.fillRect(0,0,W,H);
-
-  // 제목
-  ctx.fillStyle='#eef1ff'; ctx.font='600 56px "Noto Sans KR",sans-serif'; ctx.textAlign='center'; ctx.fillText('나의 기도 불꽃', W/2, 120);
-  ctx.font='400 28px "Noto Sans KR",sans-serif'; ctx.fillStyle='#a7b0cc'; ctx.fillText(`참여 ${n}회 • ${st.name}`, W/2, 170);
-
-  // flame SVG rasterize
-  const svg=document.getElementById('flameSVG').cloneNode(true);
-  const svgTxt=new XMLSerializer().serializeToString(svg);
-  const url='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgTxt);
-  await new Promise((res,rej)=>{ const img=new Image(); img.onload=()=>{ctx.drawImage(img, W/2-210, 300, 420, 560); res();}; img.onerror=rej; img.src=url; });
-
-  // 카드
-  roundRect(ctx,120,900,W-240,300,18); ctx.fillStyle='rgba(255,255,255,.06)'; ctx.fill();
-  ctx.font='400 24px "Noto Sans KR",sans-serif'; ctx.fillStyle='#a7b0cc'; ctx.textAlign='left'; ctx.fillText(fmt(last.dateISO)+' • '+last.tag,150,950);
-  ctx.font='32px "Nanum Pen Script",cursive'; ctx.fillStyle='#eef1ff'; wrap(ctx, `“${last.text}”`, 150, 996, W-300, 46);
-
-  const png=c.toDataURL('image/png'); const a=document.createElement('a'); a.href=png; a.download=`나의_기도_불꽃_${fmt(last.dateISO)}.png`; document.body.appendChild(a); a.click(); a.remove();
-  toast('이미지를 저장했어요!');
-});
-
-/* util */
-function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
-function wrap(ctx,text,x,y,max,line){ const chars=text.split(''); let lineStr=''; for(let i=0;i<chars.length;i++){ const t=lineStr+chars[i]; if(ctx.measureText(t).width>max && i>0){ ctx.fillText(lineStr,x,y); lineStr=chars[i]; y+=line; } else lineStr=t; } ctx.fillText(lineStr,x,y); }
-function toast(msg){ const el=document.createElement('div'); el.textContent=msg; Object.assign(el.style,{position:'fixed',left:'50%',bottom:'26px',transform:'translateX(-50%)',background:'#0e1228',color:'#eef1ff',border:'1px solid #1e2742',padding:'10px 14px',borderRadius:'10px',zIndex:9999}); document.body.appendChild(el); setTimeout(()=>{el.style.transition='opacity .35s'; el.style.opacity='0';},1200); setTimeout(()=>el.remove(),1650); }
-function escapeHTML(s){ return s.replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m])); }
-
-/* nav in flame */
-document.getElementById('btnMore').addEventListener('click',()=>goTo('view-input'));
-document.getElementById('btnToHistory').addEventListener('click',()=>{ renderHistory(); goTo('view-history'); });
-
-/* init */
-function renderFlame(){/* stub to avoid hoist warning */} // already defined above
-renderHistory();
-</script>
 </body>
 </html>

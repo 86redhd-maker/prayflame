@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>기도의 불씨</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#070b1a;
+    --bg2:#111a33;
+    --text:#e9eefc;
+    --muted:#a9b2d0;
+    --accent:#88a4ff;
+
+    /* flame colors (will be overridden by stage classes) */
+    --flame-outer:#ff3b3b;
+    --flame-mid:#ff7a5c;
+    --flame-inner:#ffd2a1;
+
+    /* stage sizes */
+    --scale:1;
+    --glow: 0 0 24px rgba(255,90,0,0.35), 0 0 60px rgba(255,180,0,0.25);
+  }
+
+  /* Stage color palettes */
+  .stage-1{
+    --flame-outer:#ff3b3b; /* red */
+    --flame-mid:#ff6b3b;
+    --flame-inner:#ffd1a6;
+    --scale:1;
+    --glow:0 0 18px rgba(255,70,70,0.35),0 0 36px rgba(255,120,90,0.25);
+  }
+  .stage-2{
+    --flame-outer:#ff8c3b; /* orange */
+    --flame-mid:#ffb13b;
+    --flame-inner:#ffe0a6;
+    --scale:1.2;
+    --glow:0 0 22px rgba(255,140,59,0.45),0 0 56px rgba(255,177,59,0.35);
+  }
+  .stage-3{
+    --flame-outer:#ffd23b; /* gold */
+    --flame-mid:#ffe26f;
+    --flame-inner:#fff4c2;
+    --scale:1.4;
+    --glow:0 0 28px rgba(255,210,59,0.55),0 0 72px rgba(255,226,111,0.45);
+  }
+  .stage-4{
+    --flame-outer:#fff6a9; /* shining */
+    --flame-mid:#fff2c9;
+    --flame-inner:#ffffff;
+    --scale:1.6;
+    --glow:0 0 36px rgba(255,246,169,0.75),0 0 120px rgba(255,255,210,0.6);
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
+    background:
+      radial-gradient(1200px 700px at 60% 10%, rgba(60,90,200,0.12), transparent 60%),
+      radial-gradient(1000px 600px at 20% 20%, rgba(255,255,255,0.07), transparent 60%),
+      linear-gradient(180deg, var(--bg2), var(--bg1) 60%);
+    color:var(--text);
+    font-family: "Noto Serif KR", serif;
+  }
+
+  /* twinkling stars */
+  .stars, .stars:after{
+    position:fixed; inset:0; content:"";
+    background:
+      radial-gradient(2px 2px at 10% 20%,rgba(255,255,255,0.7),transparent 50%),
+      radial-gradient(1.5px 1.5px at 70% 30%,rgba(255,255,255,0.6),transparent 50%),
+      radial-gradient(1.8px 1.8px at 30% 80%,rgba(255,255,255,0.7),transparent 50%),
+      radial-gradient(1.3px 1.3px at 85% 70%,rgba(255,255,255,0.6),transparent 50%),
+      radial-gradient(1.6px 1.6px at 50% 60%,rgba(255,255,255,0.5),transparent 50%);
+    animation: twinkle 8s linear infinite;
+    opacity:0.7; pointer-events:none;
+  }
+  .stars:after{ animation-delay: -4s; opacity:0.5; }
+
+  @keyframes twinkle{
+    0%,100%{ filter:brightness(1); transform:translateY(0px); }
+    50%{ filter:brightness(1.4); transform:translateY(-0.8px); }
+  }
+
+  .wrap{
+    position:relative;
+    min-height:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px 80px;
+  }
+  .card{
+    width:min(880px, 96vw);
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.35), 0 0 60px rgba(70,90,200,0.15) inset;
+    backdrop-filter: blur(6px);
+    padding:24px;
+  }
+  header{
+    text-align:center;
+    margin-bottom:18px;
+  }
+  h1{
+    margin:6px 0 4px;
+    font-weight:700;
+    letter-spacing:0.02em;
+  }
+  .subtitle{
+    color:var(--muted);
+    font-size:0.98rem;
+  }
+
+  .view{ display:none; }
+  .view.active{ display:block; }
+
+  .center{
+    text-align:center;
+  }
+  .hand{
+    font-family:"Nanum Pen Script", cursive;
+    font-size:1.25rem;
+    line-height:1.6;
+    letter-spacing:0.02em;
+  }
+
+  button, .btn{
+    appearance:none;
+    border:1px solid rgba(255,255,255,0.16);
+    background:linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.06));
+    color:var(--text);
+    padding:12px 16px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:1rem;
+    transition: transform .05s ease, box-shadow .2s ease, background .2s;
+    box-shadow: 0 6px 14px rgba(0,0,0,0.25);
+  }
+  button:hover{ transform: translateY(-1px); }
+  button.primary{
+    border-color: rgba(120,150,255,0.6);
+    background:linear-gradient(180deg, rgba(136,164,255,0.45), rgba(136,164,255,0.15));
+    color:#0c1330;
+    font-weight:700;
+  }
+  .btn-row{
+    display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:14px;
+  }
+
+  /* input area */
+  textarea{
+    width:100%; min-height:110px;
+    padding:14px 16px;
+    border-radius:12px;
+    border:1px solid rgba(255,255,255,0.15);
+    background:rgba(255,255,255,0.06);
+    color:var(--text);
+    font-size:1rem; line-height:1.6;
+    resize:vertical;
+  }
+  .tags{ display:flex; gap:8px; flex-wrap:wrap; margin:12px 0 8px; }
+  .tag{
+    padding:8px 12px; border-radius:999px;
+    border:1px dashed rgba(255,255,255,0.25);
+    color:var(--text); cursor:pointer; user-select:none;
+  }
+  .tag.active{
+    border-style:solid;
+    background:rgba(255,255,255,0.18);
+    color:#0c1330; font-weight:700;
+  }
+
+  /* flame frame */
+  .flame-panel{
+    display:flex; gap:18px; align-items:center; justify-content:center; flex-wrap:wrap;
+    padding:8px 0 4px;
+  }
+  .flame-wrap{
+    width:min(360px, 86vw); aspect-ratio: 3/4;
+    background: radial-gradient(160px 120px at 50% 70%, rgba(255,200,140,0.18), transparent 60%),
+                radial-gradient(260px 200px at 50% 100%, rgba(255,150,70,0.18), transparent 60%);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 16px;
+    position:relative;
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:var(--glow);
+  }
+
+  /* SVG sizing */
+  .flame{
+    width:70%; height:auto; transform-origin: 50% 100%;
+    filter: drop-shadow(0 8px 22px rgba(255,180,90,0.28));
+    transform: scale(var(--scale));
+  }
+
+  /* flicker */
+  .flicker{
+    animation: flicker 1.3s ease-in-out infinite;
+  }
+  @keyframes flicker{
+    0%{ transform: scale(calc(var(--scale)*0.98)) translateY(0px); }
+    50%{ transform: scale(calc(var(--scale)*1.02)) translateY(-2px); }
+    100%{ transform: scale(calc(var(--scale)*0.99)) translateY(0px); }
+  }
+
+  .sparkles{
+    position:absolute; inset:0; pointer-events:none;
+    opacity:0.65; filter: blur(0.3px);
+    animation: sparkle 2.2s ease-in-out infinite;
+  }
+  @keyframes sparkle{
+    0%,100%{ transform:translateY(0); opacity:.55; }
+    50%{ transform:translateY(-4px); opacity:.9; }
+  }
+
+  .note{
+    text-align:center; color:var(--muted); margin-top:8px; font-size:0.95rem;
+  }
+
+  /* history */
+  .history{
+    margin-top:12px;
+    max-height: 320px; overflow:auto;
+    border-top:1px dashed rgba(255,255,255,0.12);
+    padding-top:12px;
+  }
+  .entry{
+    padding:10px 12px;
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:12px;
+    background:rgba(255,255,255,0.05);
+    margin-bottom:10px;
+  }
+  .entry .date{ color:var(--muted); font-size:0.9rem; }
+  .pill{
+    display:inline-block; padding:4px 8px; border-radius:999px; margin-left:6px;
+    background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.18); font-size:0.85rem;
+  }
+
+  footer{
+    text-align:center; color:var(--muted); font-size:0.85rem; margin-top:16px;
+  }
+
+  /* utility */
+  .hide{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="stars"></div>
+<div class="wrap">
+  <main class="card">
+
+    <header>
+      <div class="subtitle">웹 교구</div>
+      <h1>기도의 불씨</h1>
+      <div class="subtitle">반복해서 참여할수록 불꽃이 자라나요 🔥</div>
+    </header>
+
+    <!-- HOME -->
+    <section id="view-home" class="view active center">
+      <p class="hand" style="font-size:1.35rem;">“나의 기도 불씨를 키워보세요”</p>
+      <div class="btn-row">
+        <button id="btnStart" class="primary">시작하기</button>
+        <button id="btnGoHistory">나의 불꽃 기록 보기</button>
+      </div>
+    </section>
+
+    <!-- INPUT -->
+    <section id="view-input" class="view">
+      <div class="hand" style="margin-bottom:8px;">하나님, 저는 …을(를) 위해 기도하고 싶어요.</div>
+      <label for="txtPrayer" class="hide">기도 제목</label>
+      <textarea id="txtPrayer" maxlength="300" placeholder="예: 아픈 친구의 회복을 위해, 가족의 평안을 위해, 시험을 준비하며…"></textarea>
+
+      <div class="hand" style="margin-top:10px;">감정 태그를 선택해 주세요</div>
+      <div id="tagList" class="tags" role="listbox" aria-label="감정 태그">
+        <!-- tags populated by JS -->
+      </div>
+
+      <div class="btn-row">
+        <button id="btnSubmit" class="primary">불꽃 만들어보기</button>
+        <button data-goto="view-home">돌아가기</button>
+      </div>
+      <div class="note">모든 내용은 <b>이 기기 로컬에만 저장</b>돼요. 서버로 전송되지 않습니다.</div>
+    </section>
+
+    <!-- FLAME RESULT -->
+    <section id="view-flame" class="view center">
+      <div class="flame-panel">
+        <div id="flameContainer" class="flame-wrap stage-1">
+          <!-- main flame svg -->
+          <svg id="flameSVG" class="flame flicker" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="g1" cx="50%" cy="50%" r="60%">
+                <stop offset="0%" stop-color="var(--flame-inner)" />
+                <stop offset="100%" stop-color="var(--flame-mid)" />
+              </radialGradient>
+              <radialGradient id="g2" cx="50%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="var(--flame-mid)" />
+                <stop offset="100%" stop-color="var(--flame-outer)" />
+              </radialGradient>
+            </defs>
+
+            <!-- outer teardrop -->
+            <path d="M100 10
+                     C 140 70, 185 120, 160 170
+                     C 140 210, 100 250, 100 250
+                     C 100 250, 60 210, 40 170
+                     C 15 120, 60 70, 100 10Z"
+                  fill="url(#g2)" opacity="0.9"/>
+            <!-- mid -->
+            <path d="M100 35
+                     C 130 85, 165 125, 145 165
+                     C 130 195, 100 230, 100 230
+                     C 100 230, 75 195, 60 165
+                     C 40 125, 70 85, 100 35Z"
+                  fill="url(#g1)" opacity="0.95"/>
+            <!-- inner core -->
+            <path d="M100 70
+                     C 120 105, 138 132, 128 155
+                     C 118 176, 100 200, 100 200
+                     C 100 200, 82 176, 72 155
+                     C 62 132, 80 105, 100 70Z"
+                  fill="var(--flame-inner)" opacity="0.95"/>
+
+            <!-- smiling ember (subtle) -->
+            <circle cx="85" cy="130" r="3" fill="rgba(0,0,0,0.25)"/>
+            <circle cx="115" cy="130" r="3" fill="rgba(0,0,0,0.25)"/>
+            <path d="M86 145 Q 100 152 114 145" stroke="rgba(0,0,0,0.25)" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </svg>
+
+          <!-- sparkles for stage-4 -->
+          <svg id="sparkles" class="sparkles hide" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <g fill="white" opacity="0.9">
+              <path d="M30 60 l6 12 12 6 -12 6 -6 12 -6 -12 -12 -6 12 -6z"/>
+              <path d="M170 90 l4 10 10 4 -10 4 -4 10 -4 -10 -10 -4 10 -4z"/>
+              <path d="M70 200 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3z"/>
+              <path d="M150 200 l5 10 10 5 -10 5 -5 10 -5 -10 -10 -5 10 -5z"/>
+            </g>
+          </svg>
+        </div>
+
+        <div style="min-width:260px;max-width:360px">
+          <h2 style="margin:0 0 6px;">당신의 기도가 불꽃이 되었습니다</h2>
+          <div id="statusLine" class="subtitle">참여 0회 • 단계: 붉은 불씨 🔴</div>
+          <div class="entry" id="lastEntryBox" style="margin-top:10px;">
+            <div class="date" id="lastDate">--</div>
+            <div class="hand" id="lastText" style="font-size:1.1rem;">—</div>
+            <div><span class="pill" id="lastTag">—</span></div>
+          </div>
+          <div class="btn-row">
+            <button id="btnSaveImage" class="primary">이미지 저장</button>
+            <button id="btnCopyText">텍스트 복사</button>
+            <button id="btnMore">다시 입력</button>
+            <button id="btnToHistory">기록 보기</button>
+          </div>
+          <div class="note">※ “이미지 저장”은 현재 불꽃 카드 이미지를 PNG로 저장합니다.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="view-history" class="view">
+      <div class="center">
+        <h2 style="margin:0 0 6px;">나의 불꽃 기록</h2>
+        <div id="historyStatus" class="subtitle">—</div>
+        <div class="btn-row">
+          <button data-goto="view-input" class="primary">새 기도 남기기</button>
+          <button id="btnExportText">전체 텍스트 복사</button>
+          <button data-goto="view-home">홈으로</button>
+        </div>
+      </div>
+      <div id="historyList" class="history"></div>
+      <footer>로컬에 저장됨 • 이 브라우저에서만 보입니다</footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+/* ===============================
+   로컬 저장소 스키마 (v1)
+   key: 'prayerSparks'
+   value: {
+     version: 1,
+     entries: [ { id:string, text:string, tag:string, dateISO:string } ]
+   }
+   =============================== */
+
+const STORAGE_KEY = 'prayerSparks';
+const TAGS = ['감사','간구','회복','지혜','화해','용서','평안','인도','소망','찬양'];
+
+const views = {
+  home: document.getElementById('view-home'),
+  input: document.getElementById('view-input'),
+  flame: document.getElementById('view-flame'),
+  history: document.getElementById('view-history'),
+};
+
+const flameContainer = document.getElementById('flameContainer');
+const sparkles = document.getElementById('sparkles');
+const statusLine = document.getElementById('statusLine');
+const lastEntryBox = document.getElementById('lastEntryBox');
+const lastDate = document.getElementById('lastDate');
+const lastText = document.getElementById('lastText');
+const lastTag = document.getElementById('lastTag');
+
+const txtPrayer = document.getElementById('txtPrayer');
+const tagList = document.getElementById('tagList');
+
+const historyStatus = document.getElementById('historyStatus');
+const historyList = document.getElementById('historyList');
+
+let selectedTag = null;
+
+/* ---------- helpers ---------- */
+function loadData(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw){
+      const base = { version:1, entries:[] };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(base));
+      return base;
+    }
+    const obj = JSON.parse(raw);
+    if(!obj.version){ obj.version = 1; }
+    if(!Array.isArray(obj.entries)) obj.entries = [];
+    return obj;
+  }catch(e){
+    console.warn('load error', e);
+    return { version:1, entries:[] };
+  }
+}
+function saveData(data){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+function addEntry(text, tag){
+  const data = loadData();
+  const entry = { id: String(Date.now()), text: text.trim(), tag: tag || '기타', dateISO: new Date().toISOString() };
+  data.entries.push(entry);
+  saveData(data);
+  return entry;
+}
+function getCount(){
+  return loadData().entries.length;
+}
+function getStage(count){
+  if(count >= 10) return {stage:4, name:'빛나는 불꽃 ✨', className:'stage-4'};
+  if(count >= 5)  return {stage:3, name:'금빛 불꽃 🟡', className:'stage-3'};
+  if(count >= 3)  return {stage:2, name:'주황 불꽃 🟠', className:'stage-2'};
+  if(count >= 1)  return {stage:1, name:'붉은 불씨 🔴', className:'stage-1'};
+  return {stage:0, name:'아직 없음', className:'stage-1'};
+}
+function formatDate(iso){
+  const d = new Date(iso);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function goTo(id){
+  Object.values(views).forEach(v=>v.classList.remove('active'));
+  views[id.replace('view-','')]?.classList.add('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+/* ---------- UI build ---------- */
+function buildTags(){
+  tagList.innerHTML = '';
+  TAGS.forEach(t=>{
+    const b = document.createElement('button');
+    b.type='button'; b.className='tag';
+    b.textContent = t; b.setAttribute('role','option');
+    b.addEventListener('click', ()=>{
+      selectedTag = (selectedTag===t) ? null : t;
+      [...tagList.children].forEach(ch=>ch.classList.toggle('active', ch.textContent===selectedTag));
+    });
+    tagList.appendChild(b);
+  });
+}
+buildTags();
+
+/* ---------- submit flow ---------- */
+document.getElementById('btnStart').addEventListener('click', ()=>goTo('view-input'));
+document.getElementById('btnGoHistory').addEventListener('click', ()=>{
+  renderHistory(); goTo('view-history');
+});
+document.querySelectorAll('[data-goto]').forEach(btn=>{
+  btn.addEventListener('click', ()=>goTo(btn.getAttribute('data-goto')));
+});
+
+document.getElementById('btnSubmit').addEventListener('click', ()=>{
+  const text = txtPrayer.value.trim();
+  if(!text){
+    alert('기도 제목을 적어 주세요.');
+    txtPrayer.focus(); return;
+  }
+  const tag = selectedTag || '기타';
+  const entry = addEntry(text, tag);
+  txtPrayer.value = ''; selectedTag = null;
+  [...tagList.children].forEach(ch=>ch.classList.remove('active'));
+  renderFlame(entry);
+  goTo('view-flame');
+});
+
+/* ---------- flame render ---------- */
+function renderFlame(latestEntry=null){
+  const count = getCount();
+  const st = getStage(count);
+  flameContainer.classList.remove('stage-1','stage-2','stage-3','stage-4');
+  flameContainer.classList.add(st.className);
+
+  statusLine.textContent = `참여 ${count}회 • 단계: ${st.name}`;
+
+  const data = loadData();
+  const last = latestEntry || data.entries[data.entries.length-1];
+  if(last){
+    lastDate.textContent = formatDate(last.dateISO);
+    lastText.textContent = last.text;
+    lastTag.textContent = last.tag;
+  }
+
+  // sparkles only on stage-4
+  sparkles.classList.toggle('hide', st.stage !== 4);
+}
+renderFlame();
+
+/* ---------- history render ---------- */
+function renderHistory(){
+  const data = loadData();
+  const count = data.entries.length;
+  const st = getStage(count);
+  historyStatus.textContent = `참여 ${count}회 • 현재 단계: ${st.name}`;
+  historyList.innerHTML = '';
+
+  const entries = [...data.entries].reverse();
+  if(entries.length === 0){
+    historyList.innerHTML = `<div class="note">아직 기록이 없어요. 오늘 첫 불씨를 남겨 보세요.</div>`;
+    return;
+  }
+  entries.forEach(en=>{
+    const div = document.createElement('div');
+    div.className='entry';
+    div.innerHTML = `
+      <div class="date">${formatDate(en.dateISO)} <span class="pill">${en.tag}</span></div>
+      <div class="hand" style="margin-top:6px;">${escapeHTML(en.text)}</div>
+    `;
+    historyList.appendChild(div);
+  });
+}
+
+/* ---------- copy/export ---------- */
+function buildTextSummary(){
+  const data = loadData();
+  const lines = [];
+  const count = data.entries.length;
+  const st = getStage(count);
+  lines.push(`【나의 기도 불꽃】`);
+  lines.push(`참여 ${count}회 • 단계: ${st.name}`);
+  lines.push(``);
+  data.entries.forEach((e,i)=>{
+    lines.push(`${i+1}. ${formatDate(e.dateISO)} [${e.tag}] ${e.text}`);
+  });
+  return lines.join('\n');
+}
+
+document.getElementById('btnCopyText').addEventListener('click', async ()=>{
+  const text = buildTextSummary();
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('텍스트를 클립보드에 복사했어요.');
+  }catch{
+    prompt('복사할 텍스트입니다. 수동으로 복사하세요:', text);
+  }
+});
+document.getElementById('btnExportText').addEventListener('click', async ()=>{
+  const text = buildTextSummary();
+  try{
+    await navigator.clipboard.writeText(text);
+    toast('전체 기록을 복사했어요.');
+  }catch{
+    prompt('복사할 텍스트입니다. 수동으로 복사하세요:', text);
+  }
+});
+
+/* ---------- image export (SVG -> Canvas -> PNG) ---------- */
+document.getElementById('btnSaveImage').addEventListener('click', async ()=>{
+  const count = getCount();
+  const st = getStage(count);
+  const data = loadData();
+  const last = data.entries[data.entries.length-1];
+
+  const W = 1000, H = 1400;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  // background
+  const grd = ctx.createLinearGradient(0,0,0,H);
+  grd.addColorStop(0, '#111a33');
+  grd.addColorStop(1, '#070b1a');
+  ctx.fillStyle = grd;
+  ctx.fillRect(0,0,W,H);
+
+  // subtle stars
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  for(let i=0;i<80;i++){
+    const x = Math.random()*W, y = Math.random()*H*0.6;
+    const r = Math.random()*1.4 + 0.3;
+    ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2); ctx.fill();
+  }
+
+  // Title
+  ctx.fillStyle = '#e9eefc';
+  ctx.font = 'bold 56px "Noto Serif KR", serif';
+  ctx.textAlign = 'center';
+  ctx.fillText('나의 기도 불꽃', W/2, 120);
+
+  ctx.font = '28px "Noto Serif KR", serif';
+  ctx.fillStyle = '#a9b2d0';
+  ctx.fillText(`참여 ${count}회 • ${st.name}`, W/2, 170);
+
+  // Draw flame by serializing current SVG
+  const svgNode = document.getElementById('flameSVG').cloneNode(true);
+  // apply current CSS variables for gradients
+  // wrap in container to preserve computed colors
+  const svgTxt = new XMLSerializer().serializeToString(svgNode);
+  const svg64 = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svgTxt);
+  await drawImageFromSrc(svg64, ctx, W/2-200, 300, 400, 520);
+
+  // last entry box
+  roundRect(ctx, 120, 880, W-240, 320, 18);
+  ctx.fillStyle = 'rgba(255,255,255,0.08)';
+  ctx.fill();
+
+  ctx.font = '24px "Noto Serif KR", serif';
+  ctx.fillStyle = '#a9b2d0';
+  ctx.textAlign = 'left';
+  ctx.fillText(formatDate(last.dateISO) + ' • ' + last.tag, 150, 930);
+
+  ctx.font = '32px "Nanum Pen Script", cursive';
+  ctx.fillStyle = '#e9eefc';
+  wrapText(ctx, `“${last.text}”`, 150, 980, W-300, 46);
+
+  // footer
+  ctx.font = '22px "Noto Serif KR", serif';
+  ctx.fillStyle = '#7e88a8';
+  ctx.textAlign = 'center';
+  ctx.fillText('이 이미지는 이 기기에서 개인적으로 저장되었습니다.', W/2, H-40);
+
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `나의_기도_불꽃_${formatDate(last.dateISO)}.png`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  toast('이미지를 저장했어요!');
+});
+
+/* ---------- small utilities ---------- */
+function drawImageFromSrc(src, ctx, x,y,w,h){
+  return new Promise((resolve,reject)=>{
+    const img = new Image();
+    img.onload = ()=>{ ctx.drawImage(img, x,y,w,h); resolve(); };
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+function roundRect(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+function wrapText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = text.split('');
+  let line = '';
+  for(let i=0;i<words.length;i++){
+    const test = line + words[i];
+    if(ctx.measureText(test).width > maxWidth && i>0){
+      ctx.fillText(line, x, y);
+      line = words[i];
+      y += lineHeight;
+    }else{
+      line = test;
+    }
+  }
+  ctx.fillText(line, x, y);
+}
+function toast(msg){
+  const el = document.createElement('div');
+  el.textContent = msg;
+  Object.assign(el.style, {
+    position:'fixed', left:'50%', bottom:'28px', transform:'translateX(-50%)',
+    background:'rgba(20,24,45,0.85)', color:'#e9eefc', border:'1px solid rgba(255,255,255,0.15)',
+    padding:'10px 14px', borderRadius:'10px', zIndex:9999, backdropFilter:'blur(4px)'
+  });
+  document.body.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .4s'; el.style.opacity='0'; }, 1400);
+  setTimeout(()=>el.remove(), 1900);
+}
+function escapeHTML(str){
+  return str.replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m]));
+}
+
+/* ---------- nav buttons on flame ---------- */
+document.getElementById('btnMore').addEventListener('click', ()=>goTo('view-input'));
+document.getElementById('btnToHistory').addEventListener('click', ()=>{
+  renderHistory(); goTo('view-history');
+});
+
+/* ---------- initial paint ---------- */
+renderHistory();
+</script>
+</body>
+</html>
